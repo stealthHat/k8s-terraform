@@ -15,7 +15,7 @@ provider "aws" {
 resource "aws_instance" "nodes" {
   ami                    = var.amis.sa-east-1
   instance_type          = "t2.micro"
-  key_name               = "terraform-aws"
+  key_name               = var.key_name
   vpc_security_group_ids = ["${aws_security_group.ssh-acess.id}"]
   count                  = 5
   tags = {
