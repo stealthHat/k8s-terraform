@@ -26,7 +26,14 @@ resource "aws_internet_gateway" "cluster-vpc-internetgw" {
   ))
 }
 
-# SubNets
+# Nat gateway
+resource "aws_nat_gateway" "cluster-nat-gateway" {
+  count         = length(var.aws_cidr_subnets_public)
+  allocation_id = element(aws_eip.cluster-nat-eip.*.id, count.index)
+  subnet_id     = element(aws_subnet.cluster-vpc-subnets-public.*.id, count.index)
+}
+
+# SubNets public
 resource "aws_subnet" "cluster-vpc-subnets-public" {
   vpc_id            = aws_vpc.cluster-vpc.id
   count             = length(var.aws_avail_zones)
@@ -36,6 +43,18 @@ resource "aws_subnet" "cluster-vpc-subnets-public" {
   tags = merge(var.default_tags, map(
     "Name", "kubernetes-${var.aws_cluster_name}-${element(var.aws_avail_zones, count.index)}-public",
     "kubernetes.io/cluster/${var.aws_cluster_name}", "member"
+  ))
+}
+
+# SubNet private
+resource "aws_subnet" "cluster-vpc-subnets-private" {
+  vpc_id            = aws_vpc.cluster-vpc.id
+  count             = length(var.aws_avail_zones)
+  availability_zone = element(var.aws_avail_zones, count.index)
+  cidr_block        = element(var.aws_cidr_subnets_private, count.index)
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-${element(var.aws_avail_zones, count.index)}-private"
   ))
 }
 
