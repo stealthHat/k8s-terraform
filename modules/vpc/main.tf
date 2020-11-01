@@ -11,29 +11,7 @@ resource "aws_vpc" "cluster-vpc" {
   ))
 }
 
-# Elastic IP
-resource "aws_eip" "cluster-nat-eip" {
-  count = length(var.aws_cidr_subnets_public)
-  vpc   = true
-}
-
-# Internet GateWay
-resource "aws_internet_gateway" "cluster-vpc-internetgw" {
-  vpc_id = aws_vpc.cluster-vpc.id
-
-  tags = merge(var.default_tags, map(
-    "Name", "kubernetes-${var.aws_cluster_name}-internetgw"
-  ))
-}
-
-# Nat gateway
-resource "aws_nat_gateway" "cluster-nat-gateway" {
-  count         = length(var.aws_cidr_subnets_public)
-  allocation_id = element(aws_eip.cluster-nat-eip.*.id, count.index)
-  subnet_id     = element(aws_subnet.cluster-vpc-subnets-public.*.id, count.index)
-}
-
-# SubNets public
+# Public SubNets
 resource "aws_subnet" "cluster-vpc-subnets-public" {
   vpc_id            = aws_vpc.cluster-vpc.id
   count             = length(var.aws_avail_zones)
@@ -46,7 +24,7 @@ resource "aws_subnet" "cluster-vpc-subnets-public" {
   ))
 }
 
-# SubNet private
+# Private SubNets
 resource "aws_subnet" "cluster-vpc-subnets-private" {
   vpc_id            = aws_vpc.cluster-vpc.id
   count             = length(var.aws_avail_zones)
@@ -58,7 +36,7 @@ resource "aws_subnet" "cluster-vpc-subnets-private" {
   ))
 }
 
-# Route table for public Network
+# Route Table for public Network
 resource "aws_route_table" "kubernetes-public" {
   vpc_id = aws_vpc.cluster-vpc.id
 
@@ -72,7 +50,7 @@ resource "aws_route_table" "kubernetes-public" {
   ))
 }
 
-# Router table for private network
+# Router Table for private network
 resource "aws_route_table" "kubernetes-private" {
   count  = length(var.aws_cidr_subnets_private)
   vpc_id = aws_vpc.cluster-vpc.id
@@ -87,16 +65,40 @@ resource "aws_route_table" "kubernetes-private" {
   ))
 }
 
+# Router Table SubNet Association
 resource "aws_route_table_association" "kubernetes-public" {
   count          = length(var.aws_cidr_subnets_public)
   subnet_id      = element(aws_subnet.cluster-vpc-subnets-public.*.id, count.index)
   route_table_id = aws_route_table.kubernetes-public.id
 }
 
+# Router Table SubNet Association 
 resource "aws_route_table_association" "kubernetes-private" {
   count          = length(var.aws_cidr_subnets_private)
   subnet_id      = element(aws_subnet.cluster-vpc-subnets-private.*.id, count.index)
   route_table_id = element(aws_route_table.kubernetes-private.*.id, count.index)
+}
+
+# Internet GateWay
+resource "aws_internet_gateway" "cluster-vpc-internetgw" {
+  vpc_id = aws_vpc.cluster-vpc.id
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-internetgw"
+  ))
+}
+
+# Elastic IP
+resource "aws_eip" "cluster-nat-eip" {
+  count = length(var.aws_cidr_subnets_public)
+  vpc   = true
+}
+
+# Nat gateway
+resource "aws_nat_gateway" "cluster-nat-gateway" {
+  count         = length(var.aws_cidr_subnets_public)
+  allocation_id = element(aws_eip.cluster-nat-eip.*.id, count.index)
+  subnet_id     = element(aws_subnet.cluster-vpc-subnets-public.*.id, count.index)
 }
 
 # Security group
