@@ -1,5 +1,5 @@
 #Global Vars
-aws_cluster_name = "hatLabs"
+aws_cluster_name = "hatlabs"
 
 #VPC Vars
 aws_vpc_cidr_block       = "10.250.192.0/18"
