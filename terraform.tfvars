@@ -2,10 +2,10 @@
 aws_cluster_name = "hatlabs"
 
 #VPC Vars
-aws_vpc_cidr_block       = "10.250.192.0/18"
-aws_cidr_subnets_private = ["192.168.0.0/27", "192.168.0.32/27"]
-aws_cidr_subnets_public  = ["192.168.0.64/27", "192.168.0.96/27"]
-aws_avail_zones          = ["sa-east-1a", "sa-east-1b"]
+aws_vpc_cidr_block       = "192.168.0.0/25"
+aws_cidr_subnets_private = ["192.168.0.0/26"]
+aws_cidr_subnets_public  = ["192.168.0.64/26"]
+aws_avail_zones          = ["sa-east-1a"]
 
 default_tags = {
   Product = "hatLabs"
