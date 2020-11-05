@@ -78,7 +78,7 @@ resource "aws_iam_role_policy" "kube-worker" {
           "Effect": "Allow",
           "Action": "ec2:DetachVolume",
           "Resource": "*"
-        },
+        }
       ]
 }
 EOF

@@ -12,22 +12,7 @@ provider "aws" {
   region = "sa-east-1"
 }
 
-resource "aws_instance" "nodes" {
-  ami                    = var.amis.sa-east-1
-  instance_type          = "t2.micro"
-  key_name               = var.key_name
-  vpc_security_group_ids = ["var.aws_security_group.ssh-acess.id"]
-  count                  = 5
-  tags = {
-    Name = "node${count.index}"
-  }
-}
-
-/*
-* Calling modules who create the initial AWS VPC / AWS ELB
-* and AWS IAM Roles for Kubernetes Deployment
-*/
-
+# VPC module
 module "aws-vpc" {
   source = "./modules/vpc"
 
@@ -37,4 +22,96 @@ module "aws-vpc" {
   aws_cidr_subnets_private = var.aws_cidr_subnets_private
   aws_cidr_subnets_public  = var.aws_cidr_subnets_public
   default_tags             = var.default_tags
+}
+
+# IAM module
+module "aws-iam" {
+  source = "./modules/iam"
+
+  aws_cluster_name = var.aws_cluster_name
+}
+
+# Bastion Host
+resource "aws_instance" "bastion-server" {
+  ami                         = data.aws_ami.distro.id
+  instance_type               = var.aws_bastion_size
+  count                       = length(var.aws_cidr_subnets_public)
+  associate_public_ip_address = true
+  availability_zone           = element(var.aws_avail_zones, count.index)
+  subnet_id                   = element(module.aws-vpc.aws_subnet_ids_public, count.index)
+
+  vpc_security_group_ids = module.aws-vpc.aws_security_group
+
+  key_name = var.key_name
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-bastion-${count.index}",
+    "Cluster", var.aws_cluster_name,
+    "Role", "bastion-${var.aws_cluster_name}-${count.index}"
+  ))
+}
+
+# Master EC2 
+resource "aws_instance" "k8s-master" {
+  ami           = data.aws_ami.distro.id
+  instance_type = var.aws_kube_master_size
+
+  count = var.aws_kube_master_num
+
+  availability_zone = element(var.aws_avail_zones, count.index)
+  subnet_id         = element(module.aws-vpc.aws_subnet_ids_private, count.index)
+
+  vpc_security_group_ids = module.aws-vpc.aws_security_group
+
+  iam_instance_profile = module.aws-iam.kube-master-profile
+  key_name             = var.key_name
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-master${count.index}",
+    "kubernetes.io/cluster/${var.aws_cluster_name}", "member",
+    "Role", "master"
+  ))
+}
+
+# Etcd EC2
+resource "aws_instance" "k8s-etcd" {
+  ami           = data.aws_ami.distro.id
+  instance_type = var.aws_etcd_size
+
+  count = var.aws_etcd_num
+
+  availability_zone = element(var.aws_avail_zones, count.index)
+  subnet_id         = element(module.aws-vpc.aws_subnet_ids_private, count.index)
+
+  vpc_security_group_ids = module.aws-vpc.aws_security_group
+
+  key_name = var.key_name
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-etcd${count.index}",
+    "kubernetes.io/cluster/${var.aws_cluster_name}", "member",
+    "Role", "etcd"
+  ))
+}
+
+# Worker EC2
+resource "aws_instance" "k8s-worker" {
+  ami           = data.aws_ami.distro.id
+  instance_type = var.aws_kube_worker_size
+
+  count = var.aws_kube_worker_num
+
+  availability_zone = element(var.aws_avail_zones, count.index)
+  subnet_id         = element(module.aws-vpc.aws_subnet_ids_private, count.index)
+
+  vpc_security_group_ids = module.aws-vpc.aws_security_group
+
+  iam_instance_profile = module.aws-iam.kube-worker-profile
+  key_name             = var.key_name
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-worker${count.index}",
+    "kubernetes.io/cluster/${var.aws_cluster_name}", "member",
+    "Role", "worker"
+  ))
 }

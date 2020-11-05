@@ -9,7 +9,7 @@ variable "aws_cluster_name" {
 }
 
 # AMI
-data "aws_ami" "ubuntu" {
+data "aws_ami" "distro" {
   most_recent = true
 
   filter {
@@ -42,6 +42,10 @@ variable "aws_cidr_subnets_public" {
 
 
 # AWS EC2 Variables
+variable "aws_bastion_size" {
+  description = "EC2 Instance Size of Bastion Host"
+}
+
 variable "aws_kube_master_num" {
   description = "Number of Kubernetes Master Nodes"
 }
