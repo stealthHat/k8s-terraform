@@ -7,6 +7,9 @@ aws_cidr_subnets_private = ["192.168.0.0/26"]
 aws_cidr_subnets_public  = ["192.168.0.64/26"]
 aws_avail_zones          = ["sa-east-1a"]
 
+# Bastion Host
+aws_bastion_size = "t2.micro"
+
 default_tags = {
   Product = "hatLabs"
 }
