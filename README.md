@@ -1,6 +1,6 @@
-# terraform
+# Terraform
 
-small infrascode for my AWS cluster
+small infrascode for my AWS cluster using [terraform](https://www.terraform.io/).
 
 
 # What this repo will create 
