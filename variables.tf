@@ -1,13 +1,9 @@
-variable "amis" {
-  default = {
-    sa-east-1 = "ami-02dc8ad50da58fffd"
-  }
-}
-
+# SSH keys Name
 variable "key_name" {
   default = "terraform-aws"
 }
 
+# Cluster Name
 variable "aws_cluster_name" {
   description = "Name of AWS Cluster"
 }
@@ -29,8 +25,7 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-//AWS VPC Variables
-
+# AWS VPC Variables
 variable "aws_vpc_cidr_block" {
   description = "CIDR Block for VPC"
 }
@@ -45,6 +40,33 @@ variable "aws_cidr_subnets_public" {
   type        = list
 }
 
+
+# AWS EC2 Variables
+variable "aws_kube_master_num" {
+  description = "Number of Kubernetes Master Nodes"
+}
+
+variable "aws_kube_master_size" {
+  description = "Instance size of Kube Master Nodes"
+}
+
+variable "aws_etcd_num" {
+  description = "Number of etcd Nodes"
+}
+
+variable "aws_etcd_size" {
+  description = "Instance size of etcd Nodes"
+}
+
+variable "aws_kube_worker_num" {
+  description = "Number of Kubernetes Worker Nodes"
+}
+
+variable "aws_kube_worker_size" {
+  description = "Instance size of Kubernetes Worker Nodes"
+}
+
+# AZ and default tags
 variable "aws_avail_zones" {
   description = "AWS Availability Zones Used"
   type        = list
