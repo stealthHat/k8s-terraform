@@ -1,4 +1,4 @@
-terraform {
+erraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -42,7 +42,7 @@ resource "aws_instance" "bastion-server" {
 
   vpc_security_group_ids = module.aws-vpc.aws_security_group
 
-  key_name = var.key_name
+  key_name = var.terraform-aws
 
   tags = merge(var.default_tags, map(
     "Name", "kubernetes-${var.aws_cluster_name}-bastion-${count.index}",
@@ -64,7 +64,7 @@ resource "aws_instance" "k8s-master" {
   vpc_security_group_ids = module.aws-vpc.aws_security_group
 
   iam_instance_profile = module.aws-iam.kube-master-profile
-  key_name             = var.key_name
+  key_name             = var.terraform-aws
 
   tags = merge(var.default_tags, map(
     "Name", "kubernetes-${var.aws_cluster_name}-master${count.index}",
@@ -85,7 +85,7 @@ resource "aws_instance" "k8s-etcd" {
 
   vpc_security_group_ids = module.aws-vpc.aws_security_group
 
-  key_name = var.key_name
+  key_name = var.terraform-aws
 
   tags = merge(var.default_tags, map(
     "Name", "kubernetes-${var.aws_cluster_name}-etcd${count.index}",
@@ -107,7 +107,7 @@ resource "aws_instance" "k8s-worker" {
   vpc_security_group_ids = module.aws-vpc.aws_security_group
 
   iam_instance_profile = module.aws-iam.kube-worker-profile
-  key_name             = var.key_name
+  key_name             = var.terraform-aws
 
   tags = merge(var.default_tags, map(
     "Name", "kubernetes-${var.aws_cluster_name}-worker${count.index}",

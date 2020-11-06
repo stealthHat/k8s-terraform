@@ -1,6 +1,6 @@
 # SSH keys Name
-variable "key_name" {
-  default = "terraform-aws"
+variable "terraform-aws" {
+  description = "SSH key"
 }
 
 # Cluster Name
