@@ -1,8 +1,3 @@
-# SSH keys Name
-variable "terraform-aws" {
-  description = "SSH key"
-}
-
 # Cluster Name
 variable "aws_cluster_name" {
   description = "Name of AWS Cluster"
@@ -14,7 +9,7 @@ data "aws_ami" "distro" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20200907"]
+    values = ["RHEL-8.2.0_HVM-20200423-x86_64-0-Hourly2-GP2"]
   }
 
   filter {
@@ -22,7 +17,7 @@ data "aws_ami" "distro" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["309956199498"] # Canonical
 }
 
 # AWS VPC Variables
@@ -40,6 +35,9 @@ variable "aws_cidr_subnets_public" {
   type        = list
 }
 
+variable "terraform-aws" {
+  description = "SSH key"
+}
 
 # AWS EC2 Variables
 variable "aws_bastion_size" {
