@@ -56,8 +56,9 @@ resource "aws_route_table" "kubernetes-private" {
   vpc_id = aws_vpc.cluster-vpc.id
 
   route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = element(aws_nat_gateway.cluster-nat-gateway.*.id, count.index)
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.id
+    #nat_gateway_id = element(aws_nat_gateway.cluster-nat-gateway.*.id, count.index)
   }
 
   tags = merge(var.default_tags, map(
@@ -95,21 +96,21 @@ resource "aws_eip" "cluster-nat-eip" {
 }
 
 # Nat gateway
-resource "aws_nat_gateway" "cluster-nat-gateway" {
-  count         = length(var.aws_cidr_subnets_public)
-  allocation_id = element(aws_eip.cluster-nat-eip.*.id, count.index)
-  subnet_id     = element(aws_subnet.cluster-vpc-subnets-public.*.id, count.index)
-}
-
-# Security group
-resource "aws_security_group" "kubernetes" {
-  name   = "kubernetes-${var.aws_cluster_name}-securitygroup"
-  vpc_id = aws_vpc.cluster-vpc.id
-
-  tags = merge(var.default_tags, map(
-    "Name", "kubernetes-${var.aws_cluster_name}-securitygroup"
-  ))
-}
+#resource "aws_nat_gateway" "cluster-nat-gateway" {
+#  count         = length(var.aws_cidr_subnets_public)
+#  allocation_id = element(aws_eip.cluster-nat-eip.*.id, count.index)
+#  subnet_id     = element(aws_subnet.cluster-vpc-subnets-public.*.id, count.index)
+#}
+#
+## Security group
+#resource "aws_security_group" "kubernetes" {
+#  name   = "kubernetes-${var.aws_cluster_name}-securitygroup"
+#  vpc_id = aws_vpc.cluster-vpc.id
+#
+#  tags = merge(var.default_tags, map(
+#    "Name", "kubernetes-${var.aws_cluster_name}-securitygroup"
+#  ))
+#}
 
 # Security group rules
 resource "aws_security_group_rule" "allow-all-ingress" {
