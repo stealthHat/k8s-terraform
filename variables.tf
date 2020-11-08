@@ -9,7 +9,7 @@ data "aws_ami" "distro" {
 
   filter {
     name   = "name"
-    values = ["RHEL-8.2.0_HVM-20200423-x86_64-0-Hourly2-GP2"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20200907"]
   }
 
   filter {
@@ -17,7 +17,7 @@ data "aws_ami" "distro" {
     values = ["hvm"]
   }
 
-  owners = ["309956199498"] # Canonical
+  owners = ["099720109477"] # Canonical
 }
 
 # AWS VPC Variables

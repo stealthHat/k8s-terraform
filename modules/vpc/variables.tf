@@ -1,13 +1,13 @@
-variable "aws_vpc_cidr_block" {
-  description = "CIDR Blocks for AWS VPC"
-}
-
 variable "aws_cluster_name" {
   description = "Name of Cluster"
 }
 
-variable "aws_avail_zones" {
-  description = "AWS Availability Zones Used"
+variable "aws_vpc_cidr_block" {
+  description = "CIDR Blocks for AWS VPC"
+}
+
+variable "aws_cidr_subnets_public" {
+  description = "CIDR Blocks for public subnets in Availability zones"
   type        = list
 }
 
@@ -16,8 +16,8 @@ variable "aws_cidr_subnets_private" {
   type        = list
 }
 
-variable "aws_cidr_subnets_public" {
-  description = "CIDR Blocks for public subnets in Availability zones"
+variable "aws_avail_zones" {
+  description = "AWS Availability Zones Used"
   type        = list
 }
 
