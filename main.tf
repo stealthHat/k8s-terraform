@@ -36,13 +36,12 @@ resource "aws_instance" "bastion-server" {
   ami                         = data.aws_ami.distro.id
   instance_type               = var.aws_bastion_size
   count                       = length(var.aws_cidr_subnets_public)
-  associate_public_ip_address = true
   availability_zone           = element(var.aws_avail_zones, count.index)
   subnet_id                   = element(module.aws-vpc.aws_subnet_ids_public, count.index)
+  associate_public_ip_address = true
 
   vpc_security_group_ids = module.aws-vpc.aws_security_group
-
-  key_name = var.terraform-aws
+  key_name               = var.terraform-aws
 
   tags = merge(var.default_tags, map(
     "Name", "kubernetes-${var.aws_cluster_name}-bastion-${count.index}",
@@ -51,32 +50,11 @@ resource "aws_instance" "bastion-server" {
   ))
 }
 
-# Master EC2 
-resource "aws_instance" "k8s-master" {
-  ami           = data.aws_ami.distro.id
-  instance_type = var.aws_kube_master_size
-
-  count = var.aws_kube_master_num
-
-  availability_zone = element(var.aws_avail_zones, count.index)
-  subnet_id         = element(module.aws-vpc.aws_subnet_ids_private, count.index)
-
-  vpc_security_group_ids = module.aws-vpc.aws_security_group
-
-  iam_instance_profile = module.aws-iam.kube-master-profile
-  key_name             = var.terraform-aws
-
-  tags = merge(var.default_tags, map(
-    "Name", "kubernetes-${var.aws_cluster_name}-master${count.index}",
-    "kubernetes.io/cluster/${var.aws_cluster_name}", "member",
-    "Role", "master"
-  ))
-}
-
 # Etcd EC2
 resource "aws_instance" "k8s-etcd" {
-  ami           = data.aws_ami.distro.id
-  instance_type = var.aws_etcd_size
+  ami                         = data.aws_ami.distro.id
+  instance_type               = var.aws_etcd_size
+  associate_public_ip_address = true
 
   count = var.aws_etcd_num
 
@@ -84,7 +62,7 @@ resource "aws_instance" "k8s-etcd" {
   subnet_id         = element(module.aws-vpc.aws_subnet_ids_private, count.index)
 
   vpc_security_group_ids = module.aws-vpc.aws_security_group
-
+  #iam module miss
   key_name = var.terraform-aws
 
   tags = merge(var.default_tags, map(
@@ -94,10 +72,33 @@ resource "aws_instance" "k8s-etcd" {
   ))
 }
 
+# Master EC2 
+resource "aws_instance" "k8s-master" {
+  ami                         = data.aws_ami.distro.id
+  instance_type               = var.aws_kube_master_size
+  associate_public_ip_address = true
+
+  count = var.aws_kube_master_num
+
+  availability_zone = element(var.aws_avail_zones, count.index)
+  subnet_id         = element(module.aws-vpc.aws_subnet_ids_private, count.index)
+
+  vpc_security_group_ids = module.aws-vpc.aws_security_group
+  iam_instance_profile   = module.aws-iam.kube-master-profile
+  key_name               = var.terraform-aws
+
+  tags = merge(var.default_tags, map(
+    "Name", "kubernetes-${var.aws_cluster_name}-master${count.index}",
+    "kubernetes.io/cluster/${var.aws_cluster_name}", "member",
+    "Role", "master"
+  ))
+}
+
 # Worker EC2
 resource "aws_instance" "k8s-worker" {
-  ami           = data.aws_ami.distro.id
-  instance_type = var.aws_kube_worker_size
+  ami                         = data.aws_ami.distro.id
+  instance_type               = var.aws_kube_worker_size
+  associate_public_ip_address = true
 
   count = var.aws_kube_worker_num
 
@@ -114,4 +115,21 @@ resource "aws_instance" "k8s-worker" {
     "kubernetes.io/cluster/${var.aws_cluster_name}", "member",
     "Role", "worker"
   ))
+}
+
+resource "local_file" "inventory" {
+    filename = "./host.ini"
+
+    content     = <<_EOF
+    [master]
+    ${aws_instance.k8s-master[0].private_ip}
+
+    [workers]
+    ${aws_instance.k8s-worker[0].private_ip}
+    ${aws_instance.k8s-worker[0].private_ip}
+
+    [etcd]
+    ${aws_instance.k8s-etcd[0].private_ip}
+
+    EOF
 }
