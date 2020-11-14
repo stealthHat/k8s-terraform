@@ -116,3 +116,14 @@ resource "aws_instance" "k8s-worker" {
     "Role", "worker"
   ))
 }
+
+# Inventory maker 
+data "template_file" "inventory" {
+  template = file("${path.module}/templates/inventory.tpl")
+
+  vars = {
+    list_master = join("\n", formatlist("%s ansible_user=%s", aws_instance.k8s-master.*.private_ip, var.ec2-user))
+    list_worker = join("\n", formatlist("%s ansible_user=%s", aws_instance.k8s-worker.*.private_ip, var.ec2-user))
+    #list_etcd                 = join("\n", formatlist("%s ansible_user=%s", aws_instance.k8s-etcd.*.private_ip, var.ec2-user))
+  }
+}
