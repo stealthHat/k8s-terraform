@@ -1,11 +1,5 @@
-# Cluster Name
 variable "aws_cluster_name" {
   description = "Name of AWS Cluster"
-}
-
-# Ec2 User for Inventory.tlp
-variable "ec2-user" {
-  description = "Name of ec2 user"
 }
 
 # AMI
@@ -82,4 +76,13 @@ variable "aws_avail_zones" {
 variable "default_tags" {
   description = "Default tags for all resources"
   type        = map
+}
+
+# Inventory Variables
+variable "ec2-user" {
+  description = "Name of ec2 user"
+}
+
+variable "inventory_file" {
+  description = "Where to store the generated inventory file"
 }

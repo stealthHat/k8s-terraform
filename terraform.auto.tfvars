@@ -8,9 +8,6 @@ aws_cidr_subnets_public  = ["192.168.0.64/26"]
 aws_avail_zones          = ["us-east-1a"]
 terraform-aws            = "terraform-aws"
 
-#ec2 user for inventory.tpl
-ec2-user = "ubuntu"
-
 # Bastion Host
 aws_bastion_size = "t2.micro"
 
@@ -24,6 +21,11 @@ aws_etcd_size = "t2.micro"
 aws_kube_worker_num  = 2
 aws_kube_worker_size = "t2.micro"
 
+# Default Tags
 default_tags = {
   Product = "hatlabs"
 }
+
+#ec2 user for inventory.tpl
+ec2-user       = "ubuntu"
+inventory_file = "../ansible/"

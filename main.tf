@@ -127,3 +127,13 @@ data "template_file" "inventory" {
     #list_etcd                 = join("\n", formatlist("%s ansible_user=%s", aws_instance.k8s-etcd.*.private_ip, var.ec2-user))
   }
 }
+
+resource "null_resource" "inventories" {
+  provisioner "local-exec" {
+    command = "echo '${data.template_file.inventory.rendered}' > ${var.inventory_file}"
+  }
+
+  triggers = {
+    template = data.template_file.inventory.rendered
+  }
+}
