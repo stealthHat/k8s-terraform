@@ -3,6 +3,11 @@ variable "aws_cluster_name" {
   description = "Name of AWS Cluster"
 }
 
+# Ec2 User for Inventory.tlp
+variable "ec2-user" {
+  description = "Name of ec2 user"
+}
+
 # AMI
 data "aws_ami" "distro" {
   most_recent = true
