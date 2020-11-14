@@ -28,4 +28,4 @@ default_tags = {
 
 #ec2 user for inventory.tpl
 ec2-user       = "ubuntu"
-inventory_file = "../ansible/"
+inventory_file = "../ansible/inventoty"
