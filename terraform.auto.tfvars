@@ -13,13 +13,13 @@ aws_bastion_size = "t2.micro"
 
 # Kubernetes Cluster
 aws_kube_master_num  = 1
-aws_kube_master_size = "t2.micro"
+aws_kube_master_size = "t2.medium"
 
 aws_etcd_num  = 1
 aws_etcd_size = "t2.micro"
 
-aws_kube_worker_num  = 2
-aws_kube_worker_size = "t2.micro"
+aws_kube_worker_num  = 1
+aws_kube_worker_size = "t2.medium"
 
 # Default Tags
 default_tags = {
@@ -28,4 +28,4 @@ default_tags = {
 
 #ec2 user for inventory.tpl
 ec2-user       = "ubuntu"
-inventory_file = "../ansible/inventory"
+inventory_file = "../k8s-ansible/inventory"
